@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 			3,                  // size
 			GL_FLOAT,           // type
 			GL_FALSE,           // normalized?
-			0,                  // stride
+			sizeof (Vertex),                  // stride
 			(void*)0            // array buffer offset
 		);
 
