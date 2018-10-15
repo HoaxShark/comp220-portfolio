@@ -1,9 +1,10 @@
 #include "Window.h"
 
-//TODO make this an actual class
-
 Window::Window()
 {
+	screenWidth = 600;
+	screenHeight = 400;
+	windowTitle = "Main Window";
 }
 
 
@@ -18,5 +19,5 @@ bool Window::getIsFullscreen()
 
 void Window::setIsFullscreen()
 {
-	isFullscreen != isFullscreen;
+	isFullscreen = !isFullscreen;
 }
