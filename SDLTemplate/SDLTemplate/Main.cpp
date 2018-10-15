@@ -4,12 +4,17 @@
 
 vec3 position = vec3(0.0f);
 vec3 shapeScale = vec3(1.0f);
+float rotateAngle = 0.0f;
+
 
 // Create Initialisation class
 Initialise init;
 
 // Create window class for managing fullscreen
 Window window;
+
+// set up perspective camera
+glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)window.screenWidth / (float)window.screenHeight, 0.1f, 100.0f);
 
 //Game loop runs while true
 bool gameRunning = true;
@@ -22,6 +27,8 @@ SDL_Window* mainWindow = nullptr;
 
 // Create context for openGL
 SDL_GLContext gl_Context = nullptr;
+
+glm::mat4 view;
 
 
 int main(int argc, char *argv[])
@@ -93,8 +100,10 @@ int main(int argc, char *argv[])
 	// call to copy the data, array type, size of data 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indice, GL_STATIC_DRAW);
 
-	// set modelMatrix location
+	// set matrix locations
 	GLuint modelMatrixLocation = glGetUniformLocation(programID, "modelMatrix");
+	GLuint viewLocation = glGetUniformLocation(programID, "view");
+	GLuint projLocation = glGetUniformLocation(programID, "proj");
 
 	//Current sdl event
 	SDL_Event event;
@@ -154,6 +163,7 @@ int main(int argc, char *argv[])
 							shapeScale = shapeScale + vec3(0.01f, 0.01f, 0.0f);
 							break;
 
+
 						case SDLK_F11:
 							
 							// switch between fullscreen and window
@@ -180,10 +190,17 @@ int main(int argc, char *argv[])
 		glUseProgram(programID);
 
 		mat4 modelMatrix = translate(position);
-		modelMatrix = glm::scale(modelMatrix, shapeScale);
+		// rotate around the z axis
+		modelMatrix = glm::rotate(modelMatrix, glm::radians(rotateAngle), glm::vec3(0.0, 0.0, 1.0));
+		// scale to vector shapeScale
+		modelMatrix = glm::scale(modelMatrix, shapeScale);		rotateAngle += 5.0f;
+		// note that we're translating the scene in the reverse direction of where we want to move
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -0.1f));		
 
 		// sends across modelMatrix
 		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(proj));
 
 		// 1st attribute buffer : vertices
 		glEnableVertexAttribArray(0);

@@ -7,12 +7,14 @@ layout(location = 1) in vec4 vertexColour;
 //out vec3 vertColor;
 
 uniform mat4 modelMatrix;
+uniform mat4 view;
+uniform mat4 proj;
 
 out vec4 vertexColourOut;
 
 void main()
 {
-	gl_Position = modelMatrix*vec4(vertexPos,1.0);
+	gl_Position = proj* view * modelMatrix * vec4(vertexPos,1.0);
 	//vertColor = vertexPos;
 	vertexColourOut = vertexColour;
 }
