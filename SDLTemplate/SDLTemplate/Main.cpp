@@ -54,11 +54,27 @@ int main(int argc, char *argv[])
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
+	// x,y,z,r,g,b,a
 	//change to use the vertex header
-	static const Vertex v[] = {
+	static const Vertex t[] = 
+	{
 		{-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f},
 		{0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f},
 		{0.0f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f},
+	};
+
+	static const Vertex v[] = 
+	{
+		{-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f},
+		{0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f},
+		{0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f},
+		{-0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f},
+	};
+
+	static const int indice[] = 
+	{
+		0,1,2,
+		2,0,3
 	};
 
 	// This will identify our vertex buffer
@@ -68,9 +84,19 @@ int main(int argc, char *argv[])
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 	// Give our vertices to OpenGL. Change to 
-	glBufferData(GL_ARRAY_BUFFER, 3 *sizeof(Vertex), v, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 4*sizeof(Vertex), v, GL_STATIC_DRAW);
 	// Hold shader programme, rename to what the ID does
 	GLuint programID = LoadShaders("vert.glsl", "frag.glsl");
+
+	// create elemenet buffer variable
+	GLuint elementbuffer;
+	// set buffer location in memory
+	glGenBuffers(1, &elementbuffer);
+	// bind the buffer (bound until you unbind it, or bind something else)
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	// call to copy the data, array type, size of data 
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(int), indice, GL_STATIC_DRAW);
+
 
 	// create view matrix
 	//mat4 ViewMatrix = translate(mat4(), vec3(-3.0f, 0.0f, 0.0f));
@@ -167,7 +193,7 @@ int main(int argc, char *argv[])
 		glUseProgram(programID);
 
 		mat4 modelMatrix = translate(position);
-		modelMatrix = glm::scale(modelMatrix, shapeScale);
+		modelMatrix = glm::scale(modelMatrix, shapeScale);
 
 		// sends across modelMatrix
 		glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -175,7 +201,8 @@ int main(int argc, char *argv[])
 		// 1st attribute buffer : vertices
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-		glVertexAttribPointer(
+		glVertexAttribPointer
+		(
 			0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 			3,                  // size
 			GL_FLOAT,           // type
@@ -186,7 +213,8 @@ int main(int argc, char *argv[])
 
 		// binds the vertex 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(
+		glVertexAttribPointer
+		(
 			1,
 			4,
 			GL_FLOAT,
@@ -194,8 +222,10 @@ int main(int argc, char *argv[])
 			sizeof(Vertex),
 			(void*)(3 * sizeof(float))
 		);
+
 		// Draw the triangle !
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		//glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDisableVertexAttribArray(0);
 
 		SDL_GL_SwapWindow(mainWindow);
@@ -205,6 +235,7 @@ int main(int argc, char *argv[])
 	glDeleteProgram(programID);
 	//Delete Buffer
 	glDeleteBuffers(1, &vertexbuffer);
+	glDeleteBuffers(1, &elementbuffer);
 	//Delete Vertex Array
 	glDeleteVertexArrays(1, &VertexArrayID);
 	//Delete context
