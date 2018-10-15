@@ -53,10 +53,12 @@ int main(int argc, char *argv[])
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-	static const GLfloat g_vertex_buffer_data[] = {
-		-0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.0f,  0.5f, 0.0f,
+
+	//change to use the vertex header
+	static const Vertex v[] = {
+		{-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f},
+		{0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f, 1.0f},
+		{0.0f,  0.5f, 0.0f,  0.0f, 1.0f, 0.0f, 1.0f},
 	};
 
 	// This will identify our vertex buffer
@@ -65,13 +67,13 @@ int main(int argc, char *argv[])
 	glGenBuffers(1, &vertexbuffer);
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	// Give our vertices to OpenGL. Change to 
+	glBufferData(GL_ARRAY_BUFFER, 3 *sizeof(Vertex), v, GL_STATIC_DRAW);
 	// Hold shader programme, rename to what the ID does
 	GLuint programID = LoadShaders("vert.glsl", "frag.glsl");
 
 	// create view matrix
-	mat4 ViewMatrix = translate(mat4(), vec3(-3.0f, 0.0f, 0.0f));
+	//mat4 ViewMatrix = translate(mat4(), vec3(-3.0f, 0.0f, 0.0f));
 
 	/*glm::mat4 CameraMatrix = glm::lookAt(
 		cameraPosition, // the position of your camera, in world space
@@ -180,6 +182,17 @@ int main(int argc, char *argv[])
 			GL_FALSE,           // normalized?
 			0,                  // stride
 			(void*)0            // array buffer offset
+		);
+
+		// binds the vertex 
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(
+			1,
+			4,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(Vertex),
+			(void*)(3 * sizeof(float))
 		);
 		// Draw the triangle !
 		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle

@@ -16,5 +16,6 @@
 #include <vector>
 #include <time.h>
 #include "Window.h"
+#include "Vertex.h"
 
 using namespace glm;
